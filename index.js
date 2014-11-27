@@ -105,35 +105,40 @@ function getHeadingID(elt) {
   return id;
 }
 
+function getHeadings(doc, href) {
+  var headings = [];
+
+  doc('h1, h2, h3, h4, h5, h6').each(function(index, element) {
+    var elt = doc(element);
+    var h = {
+      level: parseInt(element.tagName.substr(1), 10) - 1,
+      title: elt.text().replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')
+    };
+
+    var id = getHeadingID(elt);
+    if (id) {
+      h.href = href + '#' + id;
+    } else if (!index) { // if the first title has no ID, use the page href
+      h.href = href;
+    }
+
+    if (h.href || keepAllHeadings) {
+      headings.push(h);
+    }
+  });
+
+  return headings;
+}
+
 function parseHeadingsSync(basedir, hrefs, keepAllHeadings) {
   var pages = [];
 
   hrefs.forEach(function(href, i) {
-    var headings = [];
     var xhtml = fs.readFileSync(path.resolve(basedir, href));
     var $ = cheerio.load(xhtml, { decodeEntities: false });
-    $('h1, h2, h3, h4, h5, h6').each(function(index, element) {
-      var elt = $(element);
-      var h = {
-        level: parseInt(element.tagName.substr(1), 10) - 1,
-        title: elt.text().replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')
-      };
-
-      var id = getHeadingID(elt);
-      if (id) {
-        h.href = href + '#' + id;
-      } else if (!index) { // if the first title has no ID, use the page href
-        h.href = href;
-      }
-
-      if (h.href || keepAllHeadings) {
-        headings.push(h);
-      }
-    });
-
     pages.push({
       href: href,
-      headings: headings
+      headings: getHeadings($, href)
     });
   });
 

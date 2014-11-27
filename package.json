@@ -1,0 +1,21 @@
+{
+  "name": "ebook",
+  "version": "0.0.0",
+  "description": "Convert a collection of HTML documents to an EPUB archive",
+  "preferGlobal": "true",
+  "main": "index.js",
+  "bin": "index.js",
+  "author": "Fabien Cazenave",
+  "license": "MIT",
+  "keywords": ["html", "epub", "ebook", "converter", "scraper"],
+  "repository" : {
+    "type": "git",
+    "url": "git://github.com/fabi1cazenave/node-ebook.git"
+  },
+  "dependencies": {
+    "archiver": "*",
+    "cheerio": "*",
+    "mime": "*"
+  },
+  "engines": { "node": "*" }
+}

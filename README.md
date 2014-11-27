@@ -3,14 +3,23 @@ node-ebook
 
 Convert a bunch of HTML documents into an EPUB.
 
-This should become a node module when it’s ready; right now it’s just a script
-to extract tables of contents and make EPUBs from HTML documents.
+Right now it’s just a script to extract tables of contents and make EPUBs from
+HTML documents. Please consider this module as a proof of concept for now:
+pretty much everything (including the name) is likely to change in the near
+future.
+
+Installation
+------------
+
+```
+npm install ebook
+```
 
 Basic usage
 -----------
 
 ```
-./ebook.js
+ebook
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: txt)               ]
