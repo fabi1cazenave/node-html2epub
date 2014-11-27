@@ -105,7 +105,7 @@ function getHeadingID(elt) {
   return id;
 }
 
-function getHeadings(doc, href) {
+function getHeadings(doc, href, keepAllHeadings) {
   var headings = [];
 
   doc('h1, h2, h3, h4, h5, h6').each(function(index, element) {
@@ -138,7 +138,7 @@ function parseHeadingsSync(basedir, hrefs, keepAllHeadings) {
     var $ = cheerio.load(xhtml, { decodeEntities: false });
     pages.push({
       href: href,
-      headings: getHeadings($, href)
+      headings: getHeadings($, href, keepAllHeadings)
     });
   });
 
