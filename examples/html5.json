@@ -1,0 +1,23 @@
+{
+  "identifier": "http://www.w3.org/TR/html5/",
+  "title": "HTML5",
+  "spine": [
+    "http://www.w3.org/TR/html5/Overview.html",
+    "http://www.w3.org/TR/html5/introduction.html",
+    "http://www.w3.org/TR/html5/infrastructure.html",
+    "http://www.w3.org/TR/html5/dom.html",
+    "http://www.w3.org/TR/html5/semantics.html",
+    "http://www.w3.org/TR/html5/browsers.html",
+    "http://www.w3.org/TR/html5/webappapis.html",
+    "http://www.w3.org/TR/html5/editing.html",
+    "http://www.w3.org/TR/html5/syntax.html",
+    "http://www.w3.org/TR/html5/the-xhtml-syntax.html",
+    "http://www.w3.org/TR/html5/rendering.html",
+    "http://www.w3.org/TR/html5/obsolete.html",
+    "http://www.w3.org/TR/html5/iana.html",
+    "http://www.w3.org/TR/html5/index.html",
+    "http://www.w3.org/TR/html5/references.html",
+    "http://www.w3.org/TR/html5/acknowledgments.html"
+  ],
+  "depth": 2
+}

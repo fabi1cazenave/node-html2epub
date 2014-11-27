@@ -12,7 +12,7 @@ Installation
 ------------
 
 ```
-npm install html2epub
+npm install html2epub -g
 ```
 
 Basic usage

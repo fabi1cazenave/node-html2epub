@@ -2,11 +2,17 @@
 
 'use strict';
 
+// built-in
 var fs       = require('fs');
+var url      = require('url');
+var http     = require('http');
 var path     = require('path');
+// third-part
 var mime     = require('mime');
 var cheerio  = require('cheerio');
 var archiver = require('archiver');
+
+var httpFilter = /^https?:\/\//;
 
 function parseArgsSync() {
   var params = {
@@ -39,7 +45,13 @@ function parseArgsSync() {
   }
 
   if (!params.spine || !params.spine.length) {
+    params.remoteSpine = false;
     params.spine = findFilesSync(params.basedir, /\.x?html?$/);
+  } else { // spine is pre-defined
+    params.remoteSpine = true;
+    params.spine.forEach(function(href) {
+      params.remoteSpine &= httpFilter.test(href);
+    });
   }
 
   return params;
@@ -333,10 +345,10 @@ function buildToC(config, format, pages) {
 
 
 /**
- * EPUB maker
+ * EPUB maker (local)
  *
- * This script can also be used to wrap a collection of XHTML documents and
- * their associated resources (see "[[content]" below) in an EPUB archive:
+ * Wrap a collection of local HTML documents and their associated resources
+ * (see "[[content]" below) in an EPUB archive:
  *
  *   META-INF
  *     container.xml
@@ -452,25 +464,7 @@ function buildOPF(config, generatedFiles) {
   return opf;
 }
 
-function buildContainer(rootfile) {
-  rootfile = rootfile || 'OPS/content.opf';
-  return '<?xml version="1.0"?>' +
-    '\n  <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">' +
-    '\n     <rootfiles>' +
-    '\n       <rootfile full-path="' + rootfile + '" media-type="application/oebps-package+xml"/>' +
-    '\n     </rootfiles>' +
-    '\n  </container>';
-}
-
-function makeEPUB(config, outputfile) {
-  var rootfile = 'OPS/content.opf';
-  var tocEPUB3 = 'OPS/toc.xhtml';
-  var tocEPUB2 = 'OPS/toc.ncx';
-
-  function fileExists(filename) {
-    return fs.existsSync(path.resolve(config.basedir, filename));
-  }
-
+function epubArchive(outputfile, rootfile) {
   var output = fs.createWriteStream(outputfile);
   var archive = archiver('zip');
 
@@ -484,11 +478,34 @@ function makeEPUB(config, outputfile) {
 
   archive.pipe(output);
 
-  // META-INF container
+  // the mimetype must be the first file in the zip archive
   archive.append('application/epub+zip', { name: 'mimetype' });
-  archive.append(buildContainer(), { name: 'META-INF/container.xml' });
 
-  // OPS indexes
+  // META-INF container
+  var container = '<?xml version="1.0"?>' +
+    '\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">' +
+    '\n   <rootfiles>' +
+    '\n     <rootfile full-path="' + rootfile + '" media-type="application/oebps-package+xml"/>' +
+    '\n   </rootfiles>' +
+    '\n</container>';
+  archive.append(container, { name: 'META-INF/container.xml' });
+
+  return archive;
+}
+
+function makeEPUB_local(config, outputfile) {
+  var rootfile = 'OPS/content.opf';
+  var tocEPUB3 = 'OPS/toc.xhtml';
+  var tocEPUB2 = 'OPS/toc.ncx';
+
+  function fileExists(filename) {
+    return fs.existsSync(path.resolve(config.basedir, filename));
+  }
+
+  // create an EPUB archive
+  var archive = epubArchive(outputfile, rootfile);
+
+  // append OPS indexes
   var pages;
   var tocFiles = [];
   if (!fileExists('toc.xhtml')) {
@@ -505,7 +522,7 @@ function makeEPUB(config, outputfile) {
     archive.append(buildOPF(config, tocFiles), { name: 'OPS/content.opf' });
   }
 
-  // OPS content
+  // append OPS content
   archive.bulk([
     { expand: true, cwd: config.basedir, src: [ '**' ], dest: 'OPS' }
   ]);
@@ -515,12 +532,147 @@ function makeEPUB(config, outputfile) {
 
 
 /**
+ * EPUB maker (remote)
+ *
+ * Wrap a collection of remote HTML documents and their associated resources
+ * (see "[[content]" below) in an EPUB archive:
+ *
+ *   META-INF
+ *     container.xml
+ *   [www.website.tld]
+ *     [[content]]
+ *   mimetype
+ *   content.opf
+ *   toc.ncx
+ *   toc.xhtml
+ *
+ * This structure can't be modified. All files, except the [[content]] part,
+ * are auto-generated.
+ */
+
+var urlTrim = /^url\(['"]?|['"]?\)$/g;
+var urlDetect = /url\(['"]?[^'"\)]*['"]?\)/g;
+var urlPattern = /url\((['"]?)([^'"\)]*)(['"]?)\)/g; // unused
+
+function download(href, encoding, onsuccess, onerror) {
+  onsuccess = (typeof onsuccess == 'function') ? onsuccess : function() {};
+  onerror   = (typeof onerror   == 'function') ? onerror   : function() {};
+
+  http.get(href, function(res) {
+    var data = '';
+    if (encoding) {
+      res.setEncoding(encoding);
+      if (encoding == 'base64') {
+        data = 'data:' + mime.lookup(href) + ';base64,';
+      }
+    }
+    res.on('data', function(chunk) { data += chunk; });
+    res.on('end', function() { onsuccess(data); });
+  }).on('error', function() { onerror(); });
+}
+
+function makeEPUB_remote(config, outputfile) {
+  var rootfile = 'content.opf';
+  var archive = epubArchive(outputfile, rootfile);
+
+  var pages = [];
+  var pagesToFetch = config.spine.length;
+
+  var resourceURLs = [];
+  var resourcesToFetch = resourceURLs.length;
+
+  function appendIndex() {
+    config.spine.forEach(function(element, index, array) {
+      array[index] = element.replace(httpFilter, '');
+    });
+
+    // XXX early return because we're not ready yet to create a proper EPUB
+    return;
+
+    // TODO: use an array of resources to create the OPF file
+    archive.append(buildToC(config, 'xhtml', pages), {
+      name: 'toc.xhtml'
+    });
+    archive.append(buildToC(config, 'ncx', pages), {
+      name: 'toc.ncx'
+    });
+    archive.append(buildOPF(config, [ 'toc.xhtml', 'toc.ncx' ]), {
+      name: 'content.opf'
+    });
+  }
+
+  function appendContent(data, href) {
+    archive.append(data, { name: href.replace(httpFilter, '') });
+    if (!pagesToFetch && !resourcesToFetch) {
+      appendIndex();
+      archive.finalize();
+    }
+  }
+
+  config.spine.forEach(function(inputURL) {
+    download(inputURL, '', function(data) {
+      console.log(inputURL);
+      var $ = cheerio.load(data);
+
+      var baseHref = inputURL.replace(/[^\/]*$/, '');
+      if ($('base').length) {
+        // XXX does not work if <base> has a relative URL
+        baseHref = $('base').last().attr('href');
+      } else {
+        $('head').prepend('\n  <base href="' + baseHref + '" />');
+      }
+
+      function pushResourceURL(href) {
+        href = url.resolve(baseHref, href);
+        if (resourceURLs.indexOf(href) < 0) {
+          resourceURLs.push(href);
+          resourcesToFetch++;
+
+          download(href, 'binary', function(data) {
+            appendContent(data, href, --resourcesToFetch);
+          });
+          console.log(href);
+        }
+      }
+
+      $('style').each(function(index, element) {
+        ($(element).text().match(urlDetect) || []).forEach(function(match) {
+          pushResourceURL(match.replace(urlTrim, ''));
+        });
+      });
+
+      $('img, audio, video').each(function(index, element) {
+        pushResourceURL($(element).attr('src'));
+      });
+
+      $('link[rel=stylesheet]').each(function(index, element) {
+        // TODO: fetch the media in the external stylesheet
+        pushResourceURL($(element).attr('href'));
+      });
+
+      var href = inputURL.replace(httpFilter, '');
+      pages.push({
+        href: href,
+        headings: getHeadings($, href)
+      });
+
+      appendContent(data, inputURL, --pagesToFetch);
+    }, function(error) {
+      console.error('Something went wrong. Now guess what.');
+    });
+  });
+}
+
+
+/**
  * main
  */
 
 var config = parseArgsSync();
-if (config.format == 'epub') {
-  makeEPUB(config, 'output.epub');
+if (config.remoteSpine) {
+  makeEPUB_remote(config, 'output.zip');
+} else if (config.format == 'epub') {
+  makeEPUB_local(config, 'output.epub');
 } else if (config.format == 'opf') {
   console.log(buildOPF(config));
 } else {
