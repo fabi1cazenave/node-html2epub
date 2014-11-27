@@ -1,5 +1,5 @@
 {
-  "name": "ebook",
+  "name": "html2epub",
   "version": "0.0.0",
   "description": "Convert a collection of HTML documents to an EPUB archive",
   "preferGlobal": "true",

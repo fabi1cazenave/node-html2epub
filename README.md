@@ -1,5 +1,5 @@
-node-ebook
-==========
+html2epub
+=========
 
 Convert a bunch of HTML documents into an EPUB.
 
@@ -12,14 +12,14 @@ Installation
 ------------
 
 ```
-npm install ebook
+npm install html2epub
 ```
 
 Basic usage
 -----------
 
 ```
-ebook
+html2epub
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: txt)               ]
