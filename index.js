@@ -117,13 +117,14 @@ function getHeadingID(elt) {
   return id;
 }
 
-function getHeadings(doc, href, keepAllHeadings) {
+function getHeadings(doc, href, headingSelector, keepAllHeadings) {
   var headings = [];
+  var firstLevel = headingSelector.charAt(1); // XXX ugliest hack *EVER*
 
-  doc('h1, h2, h3, h4, h5, h6').each(function(index, element) {
+  doc(headingSelector || 'h1,h2,h3,h4,h5,h6').each(function(index, element) {
     var elt = doc(element);
     var h = {
-      level: parseInt(element.tagName.substr(1), 10) - 1,
+      level: parseInt(element.tagName.substr(1), 10) - firstLevel,
       title: elt.text().replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')
     };
 
@@ -142,15 +143,15 @@ function getHeadings(doc, href, keepAllHeadings) {
   return headings;
 }
 
-function parseHeadingsSync(basedir, hrefs, keepAllHeadings) {
+function parseHeadingsSync(config) {
   var pages = [];
 
-  hrefs.forEach(function(href, i) {
-    var xhtml = fs.readFileSync(path.resolve(basedir, href));
+  config.spline.forEach(function(href, i) {
+    var xhtml = fs.readFileSync(path.resolve(config.basedir, href));
     var $ = cheerio.load(xhtml, { decodeEntities: false });
     pages.push({
       href: href,
-      headings: getHeadings($, href, keepAllHeadings)
+      headings: getHeadings($, href, config.headings, config.keepAllHeadings)
     });
   });
 
@@ -293,10 +294,8 @@ function buildToC_xhtml(pages, depth) { // EPUB3
   return $.html();
 }
 
-function buildToC(config, format, pages) {
+function buildToC(config, pages, format) {
   var output = '';
-  pages = pages ||
-    parseHeadingsSync(config.basedir, config.spine, config.keepAllHeadings);
 
   switch (format || config.format) {
     case 'txt':
@@ -506,17 +505,15 @@ function makeEPUB_local(config, outputfile) {
   var archive = epubArchive(outputfile, rootfile);
 
   // append OPS indexes
-  var pages;
+  var pages = parseHeadingsSync(config);
   var tocFiles = [];
   if (!fileExists('toc.xhtml')) {
     tocFiles.push('toc.xhtml');
-    pages = parseHeadingsSync(config.basedir, config.spine, config.keepAllHeadings);
-    archive.append(buildToC(config, 'xhtml', pages), { name: 'OPS/toc.xhtml' });
+    archive.append(buildToC(config, pages, 'xhtml'), { name: 'OPS/toc.xhtml' });
   }
   if (!fileExists('toc.ncx')) {
     tocFiles.push('toc.ncx');
-    pages = pages || parseHeadingsSync(config.basedir, config.spine, config.keepAllHeadings);
-    archive.append(buildToC(config, 'ncx', pages), { name: 'OPS/toc.ncx' });
+    archive.append(buildToC(config, pages, 'ncx'), { name: 'OPS/toc.ncx' });
   }
   if (!fileExists('content.opf')) {
     archive.append(buildOPF(config, tocFiles), { name: 'OPS/content.opf' });
@@ -575,7 +572,7 @@ function makeEPUB_remote(config, outputfile) {
   var rootfile = 'content.opf';
   var archive = epubArchive(outputfile, rootfile);
 
-  var pages = [];
+  var pages = new Array(config.spine.length);
   var pagesToFetch = config.spine.length;
 
   var resourceURLs = [];
@@ -585,17 +582,17 @@ function makeEPUB_remote(config, outputfile) {
     config.spine.forEach(function(element, index, array) {
       array[index] = element.replace(httpFilter, '');
     });
+    archive.append(buildToC(config, pages, 'xhtml'), {
+      name: 'toc.xhtml'
+    });
+    archive.append(buildToC(config, pages, 'ncx'), {
+      name: 'toc.ncx'
+    });
 
+    // TODO: use an array of resources to create the OPF file
     // XXX early return because we're not ready yet to create a proper EPUB
     return;
 
-    // TODO: use an array of resources to create the OPF file
-    archive.append(buildToC(config, 'xhtml', pages), {
-      name: 'toc.xhtml'
-    });
-    archive.append(buildToC(config, 'ncx', pages), {
-      name: 'toc.ncx'
-    });
     archive.append(buildOPF(config, [ 'toc.xhtml', 'toc.ncx' ]), {
       name: 'content.opf'
     });
@@ -609,7 +606,7 @@ function makeEPUB_remote(config, outputfile) {
     }
   }
 
-  config.spine.forEach(function(inputURL) {
+  config.spine.forEach(function(inputURL, page_index) {
     download(inputURL, '', function(data) {
       console.log(inputURL);
       var $ = cheerio.load(data);
@@ -651,10 +648,10 @@ function makeEPUB_remote(config, outputfile) {
       });
 
       var href = inputURL.replace(httpFilter, '');
-      pages.push({
+      pages[page_index] = {
         href: href,
-        headings: getHeadings($, href)
-      });
+        headings: getHeadings($, href, config.headings, config.keepAllHeadings)
+      };
 
       appendContent(data, inputURL, --pagesToFetch);
     }, function(error) {
@@ -676,6 +673,6 @@ if (config.remoteSpine) {
 } else if (config.format == 'opf') {
   console.log(buildOPF(config));
 } else {
-  console.log(buildToC(config));
+  console.log(buildToC(config, parseHeadingsSync(config)));
 }
 
