@@ -119,9 +119,10 @@ function getHeadingID(elt) {
 
 function getHeadings(doc, href, headingSelector, keepAllHeadings) {
   var headings = [];
-  var firstLevel = headingSelector.charAt(1); // XXX ugliest hack *EVER*
 
-  doc(headingSelector || 'h1,h2,h3,h4,h5,h6').each(function(index, element) {
+  headingSelector = headingSelector || 'h1,h2,h3,h4,h5,h6';
+  var firstLevel = headingSelector.charAt(1); // XXX ugliest hack *EVER*
+  doc(headingSelector).each(function(index, element) {
     var elt = doc(element);
     var h = {
       level: parseInt(element.tagName.substr(1), 10) - firstLevel,
@@ -580,7 +581,7 @@ function makeEPUB_remote(config, outputfile) {
 
   config.spine.forEach(function(inputURL, page_index) {
     download(inputURL, '', function(data) {
-      console.log(inputURL);
+      console.log('  downloading: ' + inputURL);
       var $ = cheerio.load(data);
 
       var baseHref = inputURL.replace(/[^\/]*$/, '');
@@ -596,11 +597,10 @@ function makeEPUB_remote(config, outputfile) {
         if (resourceURLs.indexOf(href) < 0) {
           resourceURLs.push(href);
           resourcesToFetch++;
-
           download(href, 'binary', function(data) {
             appendContent(data, href, --resourcesToFetch);
           });
-          console.log(href);
+          console.log('  downloading: ' + href);
         }
       }
 

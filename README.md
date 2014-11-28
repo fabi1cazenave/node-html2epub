@@ -25,7 +25,8 @@ html2epub
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: txt)               ]
-  [ --depth                            ToC depth      (default: not limited)       ]
+  [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6  ]
+  [ --depth                            ToC depth      (default: 6)                 ]
 ```
 
 Check the [examples](https://github.com/fabi1cazenave/node-ebook/tree/master/examples) directory for sample configuration files.
