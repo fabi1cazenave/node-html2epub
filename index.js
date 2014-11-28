@@ -352,7 +352,7 @@ function buildToC(config, pages, format) {
  *
  *   META-INF
  *     container.xml
- *   OPS
+ *   EPUB
  *     content.opf
  *     toc.ncx
  *     toc.xhtml
@@ -471,9 +471,9 @@ function epubArchive(outputfile, rootfile) {
 }
 
 function makeEPUB_local(config, outputfile) {
-  var rootfile = 'OPS/content.opf';
-  var tocEPUB3 = 'OPS/toc.xhtml';
-  var tocEPUB2 = 'OPS/toc.ncx';
+  var rootfile = 'EPUB/content.opf';
+  var tocEPUB3 = 'EPUB/toc.xhtml';
+  var tocEPUB2 = 'EPUB/toc.ncx';
 
   function fileExists(filename) {
     return fs.existsSync(path.resolve(config.basedir, filename));
@@ -482,24 +482,24 @@ function makeEPUB_local(config, outputfile) {
   // create an EPUB archive
   var archive = epubArchive(outputfile, rootfile);
 
-  // append OPS indexes
+  // append EPUB indexes
   var pages = parseHeadingsSync(config);
   var files = findFilesSync(config.basedir);
   if (!fileExists('toc.xhtml')) {
     files.push('toc.xhtml');
-    archive.append(buildToC(config, pages, 'xhtml'), { name: 'OPS/toc.xhtml' });
+    archive.append(buildToC(config, pages, 'xhtml'), { name: 'EPUB/toc.xhtml' });
   }
   if (!fileExists('toc.ncx')) {
     files.push('toc.ncx');
-    archive.append(buildToC(config, pages, 'ncx'), { name: 'OPS/toc.ncx' });
+    archive.append(buildToC(config, pages, 'ncx'), { name: 'EPUB/toc.ncx' });
   }
   if (!fileExists('content.opf')) {
-    archive.append(buildOPF(config, files), { name: 'OPS/content.opf' });
+    archive.append(buildOPF(config, files), { name: 'EPUB/content.opf' });
   }
 
-  // append OPS content
+  // append EPUB content
   archive.bulk([
-    { expand: true, cwd: config.basedir, src: [ '**' ], dest: 'OPS' }
+    { expand: true, cwd: config.basedir, src: [ '**' ], dest: 'EPUB' }
   ]);
 
   archive.finalize();
@@ -514,12 +514,13 @@ function makeEPUB_local(config, outputfile) {
  *
  *   META-INF
  *     container.xml
- *   [www.website.tld]
- *     [[content]]
+ *   EPUB
+ *     [www.website.tld]
+ *       [[content]]
+ *     content.opf
+ *     toc.ncx
+ *     toc.xhtml
  *   mimetype
- *   content.opf
- *   toc.ncx
- *   toc.xhtml
  *
  * This structure can't be modified. All files, except the [[content]] part,
  * are auto-generated.
@@ -547,7 +548,7 @@ function download(href, encoding, onsuccess, onerror) {
 }
 
 function makeEPUB_remote(config, outputfile) {
-  var rootfile = 'content.opf';
+  var rootfile = 'EPUB/content.opf';
   var archive = epubArchive(outputfile, rootfile);
 
   var pages = new Array(config.spine.length);
@@ -566,13 +567,13 @@ function makeEPUB_remote(config, outputfile) {
     });
     resourceURLs.push('toc.xhtml');
     resourceURLs.push('toc.ncx');
-    archive.append(buildOPF(config, resourceURLs  ), { name: 'content.opf' });
-    archive.append(buildToC(config, pages, 'xhtml'), { name: 'toc.xhtml'   });
-    archive.append(buildToC(config, pages, 'ncx'  ), { name: 'toc.ncx'     });
+    archive.append(buildOPF(config, resourceURLs  ), { name: 'EPUB/content.opf' });
+    archive.append(buildToC(config, pages, 'xhtml'), { name: 'EPUB/toc.xhtml'   });
+    archive.append(buildToC(config, pages, 'ncx'  ), { name: 'EPUB/toc.ncx'     });
   }
 
   function appendContent(data, href) {
-    archive.append(data, { name: href.replace(httpFilter, '') });
+    archive.append(data, { name: 'EPUB/' + href.replace(httpFilter, '') });
     if (!pagesToFetch && !resourcesToFetch) {
       appendIndex();
       archive.finalize();
