@@ -24,17 +24,20 @@ Basic usage
 html2epub
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
-  [ --format=txt|json|xhtml|ncx|epub   output format  (default: txt)               ]
+  [ --format=txt|json|xhtml|ncx|epub   output format  (default: epub)              ]
   [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6  ]
   [ --depth                            ToC depth      (default: 6)                 ]
 ```
 
-Check the [examples](https://github.com/fabi1cazenave/node-ebook/tree/master/examples) directory for sample configuration files.
+Check the [examples](https://github.com/fabi1cazenave/node-ebook/tree/master/examples)
+ directory for sample configuration files.
 
 License
 -------
 
-MIT
+The code is released under the MIT license.
+In the examples folder, `alice` is subject to the [Gutenberg™ license](http://gutenberg.org/license).
+
 
 Stability
 ---------

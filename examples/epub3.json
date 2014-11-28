@@ -1,0 +1,16 @@
+{
+  "identifier": "http://www.idpf.org/epub/301/spec/",
+  "title": "EPUB 3.0.1 Specification",
+  "dc": {
+    "creator": "EPUB 3 Working Group"
+  },
+  "spine": [
+    "http://www.idpf.org/epub/301/spec/epub-overview.html",
+    "http://www.idpf.org/epub/301/spec/epub-publications.html",
+    "http://www.idpf.org/epub/301/spec/epub-contentdocs.html",
+    "http://www.idpf.org/epub/301/spec/epub-mediaoverlays.html",
+    "http://www.idpf.org/epub/301/spec/epub-ocf.html"
+  ],
+  "headings": "h1, h2, div.section > h3, h4, h5, h6",
+  "depth": 3
+}
