@@ -1,6 +1,6 @@
 {
   "name": "html2epub",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Convert a collection of HTML documents to an EPUB archive",
   "preferGlobal": "true",
   "main": "index.js",

@@ -1,6 +1,9 @@
 {
   "identifier": "http://www.w3.org/TR/html5/",
   "title": "HTML5",
+  "dc": {
+    "creator": "W3C"
+  },
   "spine": [
     "http://www.w3.org/TR/html5/Overview.html",
     "http://www.w3.org/TR/html5/introduction.html",
@@ -19,6 +22,6 @@
     "http://www.w3.org/TR/html5/references.html",
     "http://www.w3.org/TR/html5/acknowledgments.html"
   ],
-  "depth": 3,
-  "headings": "h2:not([class~=no-toc]),h3,h4,h5,h6"
+  "headings": "h2:not([class~=no-toc]),h3,h4,h5,h6",
+  "depth": 3
 }

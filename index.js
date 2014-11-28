@@ -375,14 +375,9 @@ function zeroPadding(prefix, number, digits) {
   return prefix + str;
 }
 
-function buildOPF_manifest_spine(basedir, spine, generatedFiles) {
+function buildOPF_manifest(files, spine) {
   var items = [];
   var ncx = 0;
-
-  var files = findFilesSync(basedir);
-  (generatedFiles || []).forEach(function(file) {
-    files.push(file);
-  });
 
   var digits = files.length.toString().length;
   files.forEach(function(href, index) {
@@ -426,24 +421,7 @@ function buildOPF_manifest_spine(basedir, spine, generatedFiles) {
   return manifest + itemrefs;
 }
 
-function buildOPF_guide(guide) {
-  var txt = '';
-
-  if (guide && guide.length) {
-    txt = '\n  <guide>';
-    guide.forEach(function(item) {
-      txt += '\n    <reference ' +
-        'href="' + item.href + '" ' +
-        'type="' + item.type + '" ' +
-        'title="' + item.title + '" />';
-    });
-    txt += '\n  </guide>';
-  }
-
-  return txt;
-}
-
-function buildOPF(config, generatedFiles) {
+function buildOPF(config, files) {
   var dc = '';
   for (var key in config.dc) {
     dc += '\n    <dc:' + key + '>' + config.dc[key] + '</dc:' + key + '>';
@@ -456,8 +434,7 @@ function buildOPF(config, generatedFiles) {
     '\n    <dc:title>' + config.title + '</dc:title>' +
     '\n    <dc:language>' + config.language + '</dc:language>' + dc +
     '\n  </metadata>' +
-    buildOPF_manifest_spine(config.basedir, config.spine, generatedFiles) +
-    buildOPF_guide(config.guide) +
+    buildOPF_manifest(files, config.spine) +
     '\n</package>';
 
   return opf;
@@ -506,17 +483,17 @@ function makeEPUB_local(config, outputfile) {
 
   // append OPS indexes
   var pages = parseHeadingsSync(config);
-  var tocFiles = [];
+  var files = findFilesSync(config.basedir);
   if (!fileExists('toc.xhtml')) {
-    tocFiles.push('toc.xhtml');
+    files.push('toc.xhtml');
     archive.append(buildToC(config, pages, 'xhtml'), { name: 'OPS/toc.xhtml' });
   }
   if (!fileExists('toc.ncx')) {
-    tocFiles.push('toc.ncx');
+    files.push('toc.ncx');
     archive.append(buildToC(config, pages, 'ncx'), { name: 'OPS/toc.ncx' });
   }
   if (!fileExists('content.opf')) {
-    archive.append(buildOPF(config, tocFiles), { name: 'OPS/content.opf' });
+    archive.append(buildOPF(config, files), { name: 'OPS/content.opf' });
   }
 
   // append OPS content
@@ -579,23 +556,18 @@ function makeEPUB_remote(config, outputfile) {
   var resourcesToFetch = resourceURLs.length;
 
   function appendIndex() {
-    config.spine.forEach(function(element, index, array) {
+    resourceURLs.forEach(function(element, index, array) {
       array[index] = element.replace(httpFilter, '');
     });
-    archive.append(buildToC(config, pages, 'xhtml'), {
-      name: 'toc.xhtml'
+    config.spine.forEach(function(element, index, array) {
+      array[index] = element.replace(httpFilter, '');
+      resourceURLs.push(element.replace(httpFilter, ''));
     });
-    archive.append(buildToC(config, pages, 'ncx'), {
-      name: 'toc.ncx'
-    });
-
-    // TODO: use an array of resources to create the OPF file
-    // XXX early return because we're not ready yet to create a proper EPUB
-    return;
-
-    archive.append(buildOPF(config, [ 'toc.xhtml', 'toc.ncx' ]), {
-      name: 'content.opf'
-    });
+    resourceURLs.push('toc.xhtml');
+    resourceURLs.push('toc.ncx');
+    archive.append(buildOPF(config, resourceURLs  ), { name: 'content.opf' });
+    archive.append(buildToC(config, pages, 'xhtml'), { name: 'toc.xhtml'   });
+    archive.append(buildToC(config, pages, 'ncx'  ), { name: 'toc.ncx'     });
   }
 
   function appendContent(data, href) {
@@ -667,7 +639,7 @@ function makeEPUB_remote(config, outputfile) {
 
 var config = parseArgsSync();
 if (config.remoteSpine) {
-  makeEPUB_remote(config, 'output.zip');
+  makeEPUB_remote(config, 'output.epub');
 } else if (config.format == 'epub') {
   makeEPUB_local(config, 'output.epub');
 } else if (config.format == 'opf') {
