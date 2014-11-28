@@ -11,5 +11,6 @@
     "epub-mediaoverlays.html",
     "epub-ocf.html"
   ],
-  "depth": 2
+  "headings": "h1, h2, div.section > h3, h4, h5, h6",
+  "depth": 3
 }

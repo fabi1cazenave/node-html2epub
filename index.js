@@ -146,7 +146,7 @@ function getHeadings(doc, href, headingSelector, keepAllHeadings) {
 function parseHeadingsSync(config) {
   var pages = [];
 
-  config.spline.forEach(function(href, i) {
+  config.spine.forEach(function(href, i) {
     var xhtml = fs.readFileSync(path.resolve(config.basedir, href));
     var $ = cheerio.load(xhtml, { decodeEntities: false });
     pages.push({
