@@ -35,13 +35,25 @@ Check the [examples](https://github.com/fabi1cazenave/node-ebook/tree/master/exa
 License
 -------
 
-The code is released under the MIT license.
-In the examples folder, `alice` is subject to the [Gutenberg™ license](http://gutenberg.org/license).
-
+* the code is released under the MIT license
+* in the examples folder, `alice` is subject to the [Gutenberg™ license](http://gutenberg.org/license)
 
 Stability
 ---------
 
 This works quite well but it’s still in a very early stage: pretty much
 everything (including the name) is likely to change in the near future.
+
+Alternatives
+------------
+
+Here are a few other HTML-to-EPUB solutions that could suit your needs:
+
+* [aov-html2epub](https://github.com/angelortega/aov-html2epub)
+* [ebook-convert](http://manual.calibre-ebook.com/cli/ebook-convert.html)
+* [GrabMyBooks](https://addons.mozilla.org/en-US/firefox/addon/grabmybooks/)
+
+And if all you need is a tool to store a web page in a single file,
+[wget64](https://www.npmjs.org/package/wget64) might provide a better
+alternative than EPUB documents.
 
