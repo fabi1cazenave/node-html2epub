@@ -1,28 +1,3 @@
-alice
------
-
-This local XHTML copy of Gutenberg’s “[Alice’s Adventures in Wonderland](http://www.gutenberg.org/1/11/)” can be converted to a valid EPUB3 ebook without any configuration:
-
-```
-html2epub --basedir=alice
-```
-
-Rather than creating a whole EPUB3 file, html2epub can also be used to generate
-EPUB index files, i.e. the table of content (supported formats: txt, json,
-xhtml, ncx) or the `content.opf` file. For example:
-
-```
-html2epub --basedir=alice --format=txt
-html2epub --basedir=alice --format=ncx
-html2epub --basedir=alice --format=opf
-```
-
-The `headings` parameter can be used to remove the main title from the table of contents:
-
-```
-html2epub --basedir=alice --format=txt --headings=h2
-```
-
 epub3
 -----
 
