@@ -19,8 +19,12 @@ function parseArgsSync() {
   var params = {
     basedir: process.cwd(),
     identifier: getUUID(),
+    modified: (new Date()).toISOString().replace(/\.[0-9]{3}Z$/, 'Z'),
+    // TODO: extract title/charset/language from HTML metadata
+    title: 'Untitled',
     charset: 'UTF-8',
     language: 'en',
+    // Table of Contents
     format: 'epub',        // ToC output format (XXX misleading name)
     depth: 3,              // ToC depth
     keepAllHeadings: false // ignore headings that have no usable ID/anchor
@@ -451,6 +455,7 @@ function buildOPF(config, files) {
     '\n    <dc:identifier id="uuid">' + config.identifier + '</dc:identifier>' +
     '\n    <dc:title>' + config.title + '</dc:title>' +
     '\n    <dc:language>' + config.language + '</dc:language>' + dc +
+    '\n    <meta property="dcterms:modified">' + config.modified + '</meta>' +
     '\n  </metadata>' +
     buildOPF_manifest(files, config.spine) +
     '\n</package>';
@@ -472,8 +477,10 @@ function epubArchive(outputfile, rootfile) {
 
   archive.pipe(output);
 
-  // the mimetype must be the first file in the zip archive
-  archive.append('application/epub+zip', { name: 'mimetype' });
+  // to pass the IDPF validator, the mimetype must be the first file in the zip
+  // archive and it must be uncompressed -- otherwise, expect this message:
+  //   "Mimetype contains wrong type (application/epub+zip expected)."
+  archive.append('application/epub+zip', { name: 'mimetype', store: true });
 
   // META-INF container
   var container = '<?xml version="1.0"?>' +

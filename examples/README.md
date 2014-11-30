@@ -1,7 +1,7 @@
 alice
 -----
 
-This local XHTML copy of Gutenberg’s “[Alice’s Adventures in Wonderland](http://www.gutenberg.org/1/11/)” can be converted to a valid EPUB3 ebook without any configuration:
+This local XHTML copy of Gutenberg’s “[Alice’s Adventures in Wonderland](http://www.gutenberg.org/1/11/)” can be converted to a [valid](http://validator.idpf.org/) EPUB3 document without any configuration:
 
 ```
 html2epub --basedir=alice

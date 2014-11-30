@@ -1,7 +1,8 @@
 html2epub
 =========
 
-Convert a collection of HTML documents into an EPUB.
+Convert a collection of HTML documents into an [IDPF-compliant](http://validator.idpf.org/)
+EPUB3 document.
 
 Along with an HTML editor, this can be used as a lightweight alternative to EPUB
 authoring systems (e.g. Calibre, Sigil…) to generate either tables of contents,
