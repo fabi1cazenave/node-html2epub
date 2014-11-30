@@ -11,6 +11,5 @@
     "http://www.idpf.org/epub/301/spec/epub-mediaoverlays.html",
     "http://www.idpf.org/epub/301/spec/epub-ocf.html"
   ],
-  "headings": "h1, h2, div.section > h3, h4, h5, h6",
-  "depth": 3
+  "headings": "h1, h2, div.section > h3, h4, h5, h6"
 }

@@ -26,7 +26,7 @@ html2epub
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: epub)              ]
   [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6  ]
-  [ --depth                            ToC depth      (default: 6)                 ]
+  [ --depth                            ToC depth      (default: 3)                 ]
 ```
 
 Check the [examples](https://github.com/fabi1cazenave/node-ebook/tree/master/examples)
@@ -53,7 +53,7 @@ Here are a few other HTML-to-EPUB solutions that could suit your needs:
 * [ebook-convert](http://manual.calibre-ebook.com/cli/ebook-convert.html)
 * [GrabMyBooks](https://addons.mozilla.org/en-US/firefox/addon/grabmybooks/)
 
-And if all you need is a tool to store a web page in a single file,
-[wget64](https://www.npmjs.org/package/wget64) might provide a better
-alternative than EPUB documents.
+Note: if you only need to store a web page in a single file,
+[wget64](https://www.npmjs.org/package/wget64) is a good alternative to EPUB
+documents.
 

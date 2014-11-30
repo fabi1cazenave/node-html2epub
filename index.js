@@ -20,8 +20,8 @@ function parseArgsSync() {
     identifier: getUUID(),
     charset: 'UTF-8',
     language: 'en',
-    format: 'epub',        // ToC output format
-    depth: 6,              // ToC depth
+    format: 'epub',        // ToC output format (XXX misleading name)
+    depth: 3,              // ToC depth
     keepAllHeadings: false // ignore headings that have no usable ID/anchor
   };
 

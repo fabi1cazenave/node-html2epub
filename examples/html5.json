@@ -22,6 +22,5 @@
     "http://www.w3.org/TR/html5/references.html",
     "http://www.w3.org/TR/html5/acknowledgments.html"
   ],
-  "headings": "h2:not([class~=no-toc]), h3, h4, h5, h6",
-  "depth": 3
+  "headings": "h2:not([class~=no-toc]), h3, h4, h5, h6"
 }
