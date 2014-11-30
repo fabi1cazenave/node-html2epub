@@ -13,6 +13,7 @@ var cheerio  = require('cheerio');
 var archiver = require('archiver');
 
 var httpFilter = /^https?:\/\//;
+var htmlFilter = /\.x?html?$/;
 
 function parseArgsSync() {
   var params = {
@@ -33,8 +34,8 @@ function parseArgsSync() {
   });
 
   if (argv.config) {
-    var content = fs.readFileSync(path.resolve(process.cwd(), argv.config));
-    var config = JSON.parse(content);
+    params.outputFile = path.basename(argv.config, '.json') + '.epub';
+    var config = JSON.parse(fs.readFileSync(argv.config));
     for (var k in config) {
       params[k] = config[k];
     }
@@ -44,9 +45,13 @@ function parseArgsSync() {
     params[key] = argv[key];
   }
 
+  params.outputFile = getNonExistingFileSync(params.outputFile ||
+    path.basename(params.basedir) + '.epub');
+
+  // XXX this section should not exist (makeEPUB should be async)
   if (!params.spine || !params.spine.length) {
     params.remoteSpine = false;
-    params.spine = findFilesSync(params.basedir, /\.x?html?$/);
+    params.spine = findFilesSync(params.basedir, htmlFilter);
   } else { // spine is pre-defined
     params.remoteSpine = true;
     params.spine.forEach(function(href) {
@@ -55,6 +60,18 @@ function parseArgsSync() {
   }
 
   return params;
+}
+
+function getNonExistingFileSync(filename) {
+  if (fs.existsSync(filename)) {
+    var ext = 1;
+    while (fs.existsSync(filename + '.' + ext)) {
+      ext++;
+    }
+    return filename + '.' + ext;
+  } else {
+    return filename;
+  }
 }
 
 function findFilesSync(basedir, filter) {
@@ -470,7 +487,7 @@ function epubArchive(outputfile, rootfile) {
   return archive;
 }
 
-function makeEPUB_local(config, outputfile) {
+function makeEPUB_local(config) {
   var rootfile = 'EPUB/content.opf';
   var tocEPUB3 = 'EPUB/toc.xhtml';
   var tocEPUB2 = 'EPUB/toc.ncx';
@@ -480,7 +497,7 @@ function makeEPUB_local(config, outputfile) {
   }
 
   // create an EPUB archive
-  var archive = epubArchive(outputfile, rootfile);
+  var archive = epubArchive(config.outputFile, rootfile);
 
   // append EPUB indexes
   var pages = parseHeadingsSync(config);
@@ -547,9 +564,9 @@ function download(href, encoding, onsuccess, onerror) {
   }).on('error', function() { onerror(); });
 }
 
-function makeEPUB_remote(config, outputfile) {
+function makeEPUB_remote(config) {
   var rootfile = 'EPUB/content.opf';
-  var archive = epubArchive(outputfile, rootfile);
+  var archive = epubArchive(config.outputFile, rootfile);
 
   var pages = new Array(config.spine.length);
   var pagesToFetch = config.spine.length;
@@ -640,9 +657,9 @@ function makeEPUB_remote(config, outputfile) {
 
 var config = parseArgsSync();
 if (config.remoteSpine) {
-  makeEPUB_remote(config, 'output.epub');
+  makeEPUB_remote(config);
 } else if (config.format == 'epub') {
-  makeEPUB_local(config, 'output.epub');
+  makeEPUB_local(config);
 } else if (config.format == 'opf') {
   console.log(buildOPF(config));
 } else {
