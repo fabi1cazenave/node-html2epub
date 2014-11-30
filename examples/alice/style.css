@@ -1,0 +1,39 @@
+body {
+  max-width: 48em;
+  margin: 0.5em auto;
+  padding: 0.5em;
+  border: 0;
+  background-color: white;
+  color: black;
+  text-align: justify
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
+}
+
+h2 {
+  page-break-before: always;
+  padding-top: 0.5em
+}
+
+p {
+  text-indent: 1em;
+  margin: 0.5em 0;
+}
+
+pre {
+  margin: 1em 10%;
+}
+
+blockquote {
+  font-style: italic;
+  margin-left: 10%;
+  margin-right: 10%
+}
+
+hr {
+  width: 10%;
+  margin: 1.5em auto;
+}
+
