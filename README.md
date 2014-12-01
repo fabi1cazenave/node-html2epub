@@ -1,8 +1,9 @@
 html2epub
 =========
-
 Convert a collection of HTML documents into an [IDPF-compliant](http://validator.idpf.org/)
 EPUB3 document.
+
+[![NPM](https://nodei.co/npm/html2epub.png)](https://nodei.co/npm/html2epub/)
 
 Along with an HTML editor, this can be used as a lightweight alternative to EPUB
 authoring systems (e.g. Calibre, Sigil…) to generate either tables of contents,
@@ -26,7 +27,7 @@ html2epub
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: epub)              ]
-  [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6  ]
+  [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6) ]
   [ --depth                            ToC depth      (default: 3)                 ]
 ```
 
