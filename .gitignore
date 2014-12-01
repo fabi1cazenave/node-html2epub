@@ -29,4 +29,5 @@ node_modules
 
 # EPUB outputs
 *.epub
+*.epub.*
 

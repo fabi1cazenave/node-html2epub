@@ -10,7 +10,7 @@
   "keywords": [ "html", "epub", "ebook", "converter", "scraper" ],
   "repository" : {
     "type": "git",
-    "url": "git://github.com/fabi1cazenave/node-ebook.git"
+    "url": "git://github.com/fabi1cazenave/node-html2epub.git"
   },
   "dependencies": {
     "archiver": "*",
