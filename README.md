@@ -27,7 +27,7 @@ html2epub
   [ --config=/path/to/config.json      configuration file                          ]
   [ --basedir=/path/to/directory       base directory (default: current directory) ]
   [ --format=txt|json|xhtml|ncx|epub   output format  (default: epub)              ]
-  [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6  ]
+  [ --headings="CSS selector"          ToC headings   (default: h1,h2,h3,h4,h5,h6) ]
   [ --depth                            ToC depth      (default: 3)                 ]
 ```
 
