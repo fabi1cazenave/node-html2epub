@@ -43,8 +43,8 @@ License
 Stability
 ---------
 
-This works quite well but it’s still in a very early stage: pretty much
-everything (including the name) is likely to change in the near future.
+This works quite well but it’s still in a very early stage: the API and
+the command-line arguments are likely to change in the near future.
 
 Alternatives
 ------------
