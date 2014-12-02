@@ -1,9 +1,9 @@
 {
   "name": "html2epub",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Convert a collection of HTML documents to an EPUB archive",
   "preferGlobal": "true",
-  "main": "lib/index.js",
+  "main": "lib/html2epub.js",
   "bin": "index.js",
   "author": "Fabien Cazenave",
   "license": "MIT",

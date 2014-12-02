@@ -1,5 +1,5 @@
 var assert = require('assert');
-var html2epub = require('../lib/');
+var html2epub = require('../lib/html2epub');
 
 describe('Constructor with no arguments', function() {
   var epub = new html2epub();
@@ -193,7 +193,7 @@ describe('Alice\'s Adventures in Wonderland', function() {
     done();
   });
 
-  it('ToC with "keepAllHeadings" headings', function(done) {
+  it('ToC with "keepAllHeadings" setting', function(done) {
     epub.keepAllHeadings = true;
     var pages = epub.parseHeadingsSync();
 
