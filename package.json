@@ -13,9 +13,9 @@
     "url": "git://github.com/fabi1cazenave/node-html2epub.git"
   },
   "dependencies": {
-    "archiver": "*",
-    "cheerio": "*",
-    "mime": "*"
+    "archiver": "0.13.1",
+    "cheerio": "1.0.0-rc.2",
+    "mime": "1.2.11"
   },
   "devDependencies": {
     "mocha": "*"
